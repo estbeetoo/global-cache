@@ -1,9 +1,8 @@
 var util = require('util'),
     request = require('request'),
     net = require('net'),
-    events = require('events'),
     _ = require('underscore'),
-    crypto = require('crypto'),
+    EventEmitter = require('events').EventEmitter,
 
     ERRORCODES = {
         '001': 'Invalid command. Command not found.',
@@ -37,8 +36,7 @@ var util = require('util'),
 
 const DELAY_BETWEEN_COMMANDS = 5000;
 
-var
-    callbacks = {},
+var callbacks = {},
     messageQueue = [],
     _currentRequestID = 0;
 var _addToCallbacks = function (done, predefinedId) {
@@ -64,7 +62,7 @@ var _addToCallbacks = function (done, predefinedId) {
         }
     };
 
-var iTach = function (config) {
+function iTach(config) {
     config = _.extend({
         port: 4998,
         timeout: 20000,
@@ -74,7 +72,7 @@ var iTach = function (config) {
     if (!config.host) {
         throw new Error('Host is required for this module to function');
     }
-
+    var self = this;
     var isSending = false;
 
     this.learn = function (done) {
@@ -96,7 +94,7 @@ var iTach = function (config) {
     };
 
     var _send = function () {
-        var self = this;
+
         if (!messageQueue.length) {
             console.log('Message queue is empty. returning...')
             return;
@@ -110,31 +108,37 @@ var iTach = function (config) {
         var socket = net.connect(config.port, config.host);
         socket.setTimeout(config.timeout);
         console.log('Connecting to ' + config.host + ':' + config.port);
-
+        self.emit('connecting');
         socket.on('connect', function () {
             console.log('node-itach :: connected to ' + config.host + ':' + config.port);
             console.log('node-itach :: sending data', data);
+            self.emit('connected');
             socket.write(data + "\r\n");
+            self.emit('send');
         });
 
         socket.on('close', function () {
             console.log('node-itach :: disconnected from ' + config.host + ':' + config.port);
+            self.emit('disconnected');
         });
 
         socket.on('error', function (err) {
             console.error('node-itach :: error :: ', err);
             done(err);
             socket.destroy();
+            self.emit('error', err);
         });
 
         socket.on('timeout', function () {
             console.error('node-itach :: error :: ', 'Timeout');
             done('Timeout');
             socket.destroy();
+            self.emit('error', 'Timeout');
         });
 
         socket.on('data', function (data) {
             var wholeData = data.toString().replace(/[\n\r]$/, "");
+            self.emit(data, wholeData);
             wholeData = wholeData.split(/\r/);
             console.log("node-itach :: received data: " + data);
             for (var key in wholeData) {
@@ -232,7 +236,7 @@ var iTach = function (config) {
             _send();
         }
     }
-    ;
+    iTach.super_.call(this, config);
 }
-
+util.inherits(iTach, EventEmitter);
 module.exports = {iTach: iTach};
