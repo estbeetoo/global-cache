@@ -1,4 +1,4 @@
-global-cache
+global-cache globalcache
 ==========
 
 Global Caché official website:  http://www.globalcache.com.

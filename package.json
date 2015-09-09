@@ -32,7 +32,7 @@
             "name": "andrei.zharau"
         }
     ],
-    "name": "globalnode-itach",
+    "name": "global-cache",
     "repository": {
         "type": "git",
         "url": "https://github.com/estbeetoo/global-cache"
