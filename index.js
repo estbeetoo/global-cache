@@ -229,4 +229,4 @@ var iTach = function (config) {
     ;
 }
 
-module.exports = iTach;
+module.exports = {iTach: iTach};
