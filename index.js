@@ -139,6 +139,8 @@ var iTach = function (config) {
             console.log("node-itach :: received data: " + data);
             for (var key in wholeData) {
                 data = wholeData[key].toString().replace(/[\n]*/, "");
+                if (!data)
+                    continue;
                 var parts = data.split(','),
                     status = parts[0],//TODO: why it was parts[1]?
                     id = parts[2];
