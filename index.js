@@ -1,4 +1,5 @@
-var request = require('request'),
+var util = require('util'),
+    request = require('request'),
     net = require('net'),
     events = require('events'),
     _ = require('underscore'),
@@ -133,24 +134,30 @@ var iTach = function (config) {
         });
 
         socket.on('data', function (data) {
-            data = data.toString().replace(/[\n\r]$/, "");
+            var wholeData = data.toString().replace(/[\n\r]$/, "");
+            wholeData = wholeData.split(/\r/);
             console.log("node-itach :: received data: " + data);
-            var parts = data.split(','),
-                status = parts[1],
-                id = parts[2];
+            for (var key in wholeData) {
+                data = wholeData[key].toString().replace(/[\n]*/, "");
+                var parts = data.split(','),
+                    status = parts[0],//TODO: why it was parts[1]?
+                    id = parts[2];
 
-            if (status === 'busyIR') {
-                // This shound not happen if this script is the only device connected to the itach
-                // add rate limiter
-                return _resolveCallback(id, 'Add Rate Limiter to the blaster');
-            } else if (status.match(/^ERR/)) {
-                var err = ERRORCODES[parts[1].split('IR')[1]];
-                console.error('node-itach :: error :: ' + data + ': ' + err);
-                return _resolveCallback(parts[2], err);
-            } else if (parts[0] === 'setstate') {
-                _resolveCallback(parts[1]);
-            } else if (parts[0] !== 'setstate') {
-                _resolveCallback(id);
+                if (status === 'busyIR') {
+                    // This shoud not happen if this script is the only device connected to the iTach
+                    // add rate limiter
+                    return _resolveCallback(id, 'Add Rate Limiter to the blaster');
+                } else if (status.match(/^ERR/)) {
+                    var tmpArr = parts[1].split('IR');
+                    var errCode = tmpArr.length >= 2 ? tmpArr[1] : tmpArr[0];
+                    var err = ERRORCODES[errCode];
+                    console.error('node-itach :: error :: ' + data + ': ' + err);
+                    return _resolveCallback(parts[2] || parts[1], err);
+                } else if (parts[0] === 'setstate') {
+                    _resolveCallback(parts[1]);
+                } else if (parts[0] !== 'setstate') {
+                    _resolveCallback(id);
+                }
             }
             socket.destroy();
 
@@ -168,14 +175,30 @@ var iTach = function (config) {
 
     this.send = function (input, done) {
         if (!input) throw new Error('Missing input');
-        var data,
-            ir = (input.ir != null);
+
+        var data, ir;
+
+        if (typeof(input) === 'string') {
+            if (input.indexOf('sendir') !== -1)
+                input = {ir: input};
+            else if (input.indexOf('setstate') !== -1)
+                input = {serial: input};
+            else
+                throw new Error('Unexpected command[' + input + '], expectind for sendir or setstat (serial cmd)');
+        }
+
+        ir = (input.ir != null);
         if (ir)
             parts = input.ir.split(',');
         else
             parts = input.serial.split(',');
 
-        if (ir && typeof input.module !== 'undefined') {
+        if (parts[0].indexOf('sendir') !== -1 && !ir)
+            throw new Error('Trying to send ir command, but it passed as ir command: ' + util.inspect(input));
+        else if (parts[0].indexOf('setstate') !== -1 && ir)
+            throw new Error('Trying to send serial command, but it passed as serial command: ' + util.inspect(input));
+
+        if (!ir && typeof input.module !== 'undefined') {
             parts[1] = '1:' + input.module;
         }
         var id;
@@ -200,7 +223,8 @@ var iTach = function (config) {
         if (!isSending) {
             _send();
         }
-    };
+    }
+    ;
 }
 
 module.exports = iTach;

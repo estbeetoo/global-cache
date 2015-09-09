@@ -1,36 +1,44 @@
 {
-  "name": "node-itach",
-  "version": "1.2.0",
-  "description": "Module to connect to Global Cache iTach devices and send IR strings.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/estbeetoo/node-itach"
-  },
-  "keywords": [
-    "node",
-    "itach"
-  ],
-  "license": "MIT License",
-  "bugs": {
-    "url": "https://github.com/estbeetoo/node-itach/issues"
-  },
-  "dependencies": {
-    "request": "^2.34.0",
-    "underscore": "^1.6.0"
-  },
-  "homepage": "https://github.com/estbeetoo/node-itach",
-  "maintainers": [
-    {
-      "name": "andrei.zharau",
-      "email": "belmass@gmail.com"
+    "author": {
+        "email": "aborovsky@beetoo.me",
+        "name": "Alexander Borovsky"
     },
-    {
-      "name": "Alexander Borovsky",
-      "email": "aborovsky@beetoo.me"
-    }
-  ]
+    "bugs": {
+        "url": "https://github.com/estbeetoo/global-cache/issues"
+    },
+    "dependencies": {
+        "request": "^2.34.0",
+        "underscore": "^1.6.0"
+    },
+    "description": "Module to connect to Global Cache iTach devices and send IR strings.",
+    "homepage": "https://github.com/estbeetoo/global-cache",
+    "keywords": [
+        "node",
+        "gc",
+        "global cache",
+        "Global Cach\u00e9",
+        "itach",
+        "house automation"
+    ],
+    "license": "Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)",
+    "main": "index.js",
+    "maintainers": [
+        {
+            "email": "aborovsky@beetoo.me",
+            "name": "Alexander Borovsky"
+        },
+        {
+            "email": "belmass@gmail.com",
+            "name": "andrei.zharau"
+        }
+    ],
+    "name": "globalnode-itach",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/estbeetoo/global-cache"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "version": "1.2.1"
 }
