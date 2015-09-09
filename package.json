@@ -4,14 +4,14 @@
     "name": "Alexander Borovsky"
   },
   "bugs": {
-    "url": "https://github.com/estbeetoo/global-cache/issues"
+    "url": "https://github.com/estbeetoo/globalcache/issues"
   },
   "dependencies": {
     "request": "^2.34.0",
     "underscore": "^1.6.0"
   },
   "description": "Module to connect to Global Cache iTach devices and send IR strings.",
-  "homepage": "https://github.com/estbeetoo/global-cache",
+  "homepage": "https://github.com/estbeetoo/globalcache",
   "keywords": [
     "node",
     "gc",
@@ -32,10 +32,10 @@
       "name": "andrei.zharau"
     }
   ],
-  "name": "global-cache",
+  "name": "globalcache",
   "repository": {
     "type": "git",
-    "url": "https://github.com/estbeetoo/global-cache"
+    "url": "https://github.com/estbeetoo/globalcache"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

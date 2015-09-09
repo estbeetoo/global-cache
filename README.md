@@ -1,18 +1,25 @@
-global-cache globalcache
+globalcache global-cache
 ==========
 
 Global Caché official website:  http://www.globalcache.com.
+
+
+
 Library to control Global Caché iTach devices (Global Cache iTach Flex devices are upcoming).
 
-Based on https://github.com/tillbaks/node-itach
+
+
+Based on https://github.com/tillbaks/node-itach.
+
 This module was inspired by https://github.com/tillbaks/node-itach, but I rewrote most of his code to solve my home automation problems.
-I use it with my iTach Flex WiFi
+
+I use it with my iTach Flex WiFi (WF2IR).
 
 Installation
 -----
 
 ```javascript
-npm install global-cache --save
+npm install globalcache --save
 ```
  
 Usage
@@ -30,7 +37,7 @@ var COMMANDS = {
     "receiver.dvd": "sendir,1:1,1,40453,1,1,339,169,22,63,22,20,22,63,22,20,22,20,22,63,22,20,22,63,22,20,22,63,22,20,22,63,22,63,22,20,22,63,22,0,20,22,63,22,20,22,63,22,20,22,63,22,63,22,20,22,63,22,20,22,20,22,63,22,20,22,63,22,63,22,20,22,20,22,20,22,63,22,20,22,63,22,20,22,20,22,63,22,63,22,63,22,4006"
 };
 
-var iTach = require('global-cache');
+var iTach = require('globalcache');
 var remote = new iTach({
     host: '192.168.1.13' // required: IP address of your iTach device
 });
