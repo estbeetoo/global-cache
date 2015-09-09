@@ -174,7 +174,13 @@ var iTach = function (config) {
             }
         });
     };
+    this.disconnect = this.end = this.destroy = function (callback) {
+        if (this.socket)
+            this.socket.end();
+        messageQueue.clear();
+        callbacks.clear();
 
+    }
     this.send = function (input, done) {
         if (!input) throw new Error('Missing input');
 
