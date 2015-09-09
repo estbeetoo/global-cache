@@ -1,44 +1,44 @@
 {
-    "author": {
-        "email": "aborovsky@beetoo.me",
-        "name": "Alexander Borovsky"
+  "author": {
+    "email": "aborovsky@beetoo.me",
+    "name": "Alexander Borovsky"
+  },
+  "bugs": {
+    "url": "https://github.com/estbeetoo/global-cache/issues"
+  },
+  "dependencies": {
+    "request": "^2.34.0",
+    "underscore": "^1.6.0"
+  },
+  "description": "Module to connect to Global Cache iTach devices and send IR strings.",
+  "homepage": "https://github.com/estbeetoo/global-cache",
+  "keywords": [
+    "node",
+    "gc",
+    "global cache",
+    "Global Caché",
+    "itach",
+    "house automation"
+  ],
+  "license": "Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "email": "aborovsky@beetoo.me",
+      "name": "Alexander Borovsky"
     },
-    "bugs": {
-        "url": "https://github.com/estbeetoo/global-cache/issues"
-    },
-    "dependencies": {
-        "request": "^2.34.0",
-        "underscore": "^1.6.0"
-    },
-    "description": "Module to connect to Global Cache iTach devices and send IR strings.",
-    "homepage": "https://github.com/estbeetoo/global-cache",
-    "keywords": [
-        "node",
-        "gc",
-        "global cache",
-        "Global Cach\u00e9",
-        "itach",
-        "house automation"
-    ],
-    "license": "Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)",
-    "main": "index.js",
-    "maintainers": [
-        {
-            "email": "aborovsky@beetoo.me",
-            "name": "Alexander Borovsky"
-        },
-        {
-            "email": "belmass@gmail.com",
-            "name": "andrei.zharau"
-        }
-    ],
-    "name": "global-cache",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/estbeetoo/global-cache"
-    },
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "version": "1.2.1"
+    {
+      "email": "belmass@gmail.com",
+      "name": "andrei.zharau"
+    }
+  ],
+  "name": "global-cache",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/estbeetoo/global-cache"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "2.0.0"
 }
