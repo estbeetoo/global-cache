@@ -39,11 +39,11 @@ const DELAY_BETWEEN_COMMANDS = 5000;
 var callbacks = {},
     messageQueue = [],
     _currentRequestID = 0;
-var _addToCallbacks = function (done, predefinedId) {
+var _addToCallbacks = function (done, predefinedId, debug) {
         var id;
         if (!predefinedId) {
-            console.log('node-itach :: generating new id for IR transmittion');
-            console.log('node-itach :: currently callbacks hash contains %d', Object.keys(callbacks).length);
+            debug && console.log('node-itach :: generating new id for IR transmittion');
+            debug && console.log('node-itach :: currently callbacks hash contains %d', Object.keys(callbacks).length);
             _currentRequestID++;
             id = _currentRequestID;
         }
@@ -52,9 +52,9 @@ var _addToCallbacks = function (done, predefinedId) {
         callbacks[id] = done;
         return id;
     },
-    _resolveCallback = function (id, err) {
+    _resolveCallback = function (id, err, debug) {
         if (callbacks[id]) {
-            console.log('node-itach :: status:%s resolving callback with id %s', err ? 'error' : 'success', id);
+            debug && console.log('node-itach :: status:%s resolving callback with id %s', err ? 'error' : 'success', id);
             callbacks[id](err || false);
             delete callbacks[id];
         } else {
@@ -74,6 +74,7 @@ function iTach(config) {
     }
     var self = this;
     var isSending = false;
+    var debug = config.debug;
 
     this.learn = function (done) {
         var options = {
@@ -96,29 +97,29 @@ function iTach(config) {
     var _send = function () {
 
         if (!messageQueue.length) {
-            console.log('Message queue is empty. returning...')
+            debug && console.log('Message queue is empty. returning...')
             return;
         }
         isSending = true;
-        console.log('Taking next message from the queue.')
+        debug && console.log('Taking next message from the queue.')
         var message = messageQueue.shift(),
             id = message[0],
             data = message[1];
 
         var socket = net.connect(config.port, config.host);
         socket.setTimeout(config.timeout);
-        console.log('Connecting to ' + config.host + ':' + config.port);
+        debug && console.log('Connecting to ' + config.host + ':' + config.port);
         self.emit('connecting');
         socket.on('connect', function () {
-            console.log('node-itach :: connected to ' + config.host + ':' + config.port);
-            console.log('node-itach :: sending data', data);
+            debug && console.log('node-itach :: connected to ' + config.host + ':' + config.port);
+            debug && console.log('node-itach :: sending data', data);
             self.emit('connected');
             socket.write(data + "\r\n");
             self.emit('send');
         });
 
         socket.on('close', function () {
-            console.log('node-itach :: disconnected from ' + config.host + ':' + config.port);
+            debug && console.log('node-itach :: disconnected from ' + config.host + ':' + config.port);
             self.emit('disconnected');
         });
 
@@ -140,7 +141,7 @@ function iTach(config) {
             var wholeData = data.toString().replace(/[\n\r]$/, "");
             self.emit(data, wholeData);
             wholeData = wholeData.split(/\r/);
-            console.log("node-itach :: received data: " + data);
+            debug && console.log("node-itach :: received data: " + data);
             for (var key in wholeData) {
                 data = wholeData[key].toString().replace(/[\n]*/, "");
                 if (!data)
@@ -152,17 +153,17 @@ function iTach(config) {
                 if (status === 'busyIR') {
                     // This shoud not happen if this script is the only device connected to the iTach
                     // add rate limiter
-                    return _resolveCallback(id, 'Add Rate Limiter to the blaster');
+                    return _resolveCallback(id, 'Add Rate Limiter to the blaster', debug);
                 } else if (status.match(/^ERR/)) {
                     var tmpArr = parts[1].split('IR');
                     var errCode = tmpArr.length >= 2 ? tmpArr[1] : tmpArr[0];
                     var err = ERRORCODES[errCode];
                     console.error('node-itach :: error :: ' + data + ': ' + err);
-                    return _resolveCallback(parts[2] || parts[1], err);
+                    return _resolveCallback(parts[2] || parts[1], err, debug);
                 } else if (parts[0] === 'setstate') {
-                    _resolveCallback(parts[1]);
+                    _resolveCallback(parts[1], null, debug);
                 } else if (parts[0] !== 'setstate') {
-                    _resolveCallback(id);
+                    _resolveCallback(id, null, debug);
                 }
             }
             socket.destroy();
@@ -170,7 +171,7 @@ function iTach(config) {
             isSending = false;
             // go to the next message in the queue if any
             if (messageQueue.length) {
-                console.log('Delay before going to another item in a queue...');
+                debug && console.log('Delay before going to another item in a queue...');
                 // for some reason my samsung tv needs this timeout.
                 setTimeout(function () {
                     _send();
@@ -215,12 +216,12 @@ function iTach(config) {
         }
         var id;
         if (ir) {
-            id = _addToCallbacks(done);
+            id = _addToCallbacks(done, null, debug);
             parts[2] = id;
         }
         else {
             id = parts[1];
-            _addToCallbacks(done, id);
+            _addToCallbacks(done, id, debug);
         }
 
         if (ir && typeof input.repeat !== 'undefined') {
