@@ -36,32 +36,6 @@ var util = require('util'),
 
 const DELAY_BETWEEN_COMMANDS = 5000;
 
-var callbacks = {},
-    messageQueue = [],
-    _currentRequestID = 0;
-var _addToCallbacks = function (done, predefinedId, debug) {
-        var id;
-        if (!predefinedId) {
-            debug && console.log('node-itach :: generating new id for IR transmittion');
-            debug && console.log('node-itach :: currently callbacks hash contains %d', Object.keys(callbacks).length);
-            _currentRequestID++;
-            id = _currentRequestID;
-        }
-        else
-            id = predefinedId;
-        callbacks[id] = done;
-        return id;
-    },
-    _resolveCallback = function (id, err, debug) {
-        if (callbacks[id]) {
-            debug && console.log('node-itach :: status:%s resolving callback with id %s', err ? 'error' : 'success', id);
-            callbacks[id](err || false);
-            delete callbacks[id];
-        } else {
-            console.error('node-itach :: cannot find callback with id %s in callbacks hash', id);
-        }
-    };
-
 function iTach(config) {
     config = _.extend({
         port: 4998,
@@ -75,6 +49,34 @@ function iTach(config) {
     var self = this;
     var isSending = false;
     var debug = config.debug;
+    var sendTimeout = null;
+
+    var callbacks = {},
+        messageQueue = [],
+        _currentRequestID = 0;
+    var _addToCallbacks = function (done, predefinedId, debug) {
+            var id;
+            if (!predefinedId) {
+                debug && console.log('node-itach :: generating new id for IR transmittion');
+                debug && console.log('node-itach :: currently callbacks hash contains %d', Object.keys(callbacks).length);
+                _currentRequestID++;
+                id = _currentRequestID;
+            }
+            else
+                id = predefinedId;
+            callbacks[id] = done;
+            return id;
+        },
+        _resolveCallback = function (id, err, debug) {
+            if (callbacks[id]) {
+                debug && console.log('node-itach :: status:%s resolving callback with id %s', err ? 'error' : 'success', id);
+                callbacks[id](err || false);
+                delete callbacks[id];
+                clearSendTimeoutAndSendRightNow();
+            } else {
+                console.error('node-itach :: cannot find callback with id %s in callbacks hash', id);
+            }
+        };
 
     this.learn = function (done) {
         var options = {
@@ -94,7 +96,15 @@ function iTach(config) {
         });
     };
 
-    var _send = function () {
+    function clearSendTimeoutAndSendRightNow() {
+        if (sendTimeout) {
+            clearTimeout(sendTimeout);
+            sendTimeout = null;
+        }
+        send_();
+    }
+
+    function send_() {
 
         if (!messageQueue.length) {
             debug && console.log('Message queue is empty. returning...')
@@ -125,14 +135,12 @@ function iTach(config) {
 
         socket.on('error', function (err) {
             console.error('node-itach :: error :: ', err);
-            done(err);
             socket.destroy();
             self.emit('error', err);
         });
 
         socket.on('timeout', function () {
             console.error('node-itach :: error :: ', 'Timeout');
-            done('Timeout');
             socket.destroy();
             self.emit('error', 'Timeout');
         });
@@ -172,9 +180,9 @@ function iTach(config) {
             // go to the next message in the queue if any
             if (messageQueue.length) {
                 debug && console.log('Delay before going to another item in a queue...');
-                // for some reason my samsung tv needs this timeout.
+                //TODO: test with different equipment, do we really need DELAY_BETWEEN_COMMANDS?
                 setTimeout(function () {
-                    _send();
+                    send_();
                 }, DELAY_BETWEEN_COMMANDS);
             }
         });
@@ -234,7 +242,7 @@ function iTach(config) {
         messageQueue.push([id, data]);
 
         if (!isSending) {
-            _send();
+            send_();
         }
     }
     iTach.super_.call(this, config);
