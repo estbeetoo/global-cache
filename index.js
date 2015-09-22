@@ -194,8 +194,7 @@ function iTach(config) {
     this.disconnect = this.end = this.destroy = function (callback) {
         if (this.socket)
             this.socket.end();
-        debugger;
-        messageQueue.clear();
+        messageQueue = [];
         callbacks = {};
     }
     this.send = function (input, done) {
