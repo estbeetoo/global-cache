@@ -136,13 +136,17 @@ function iTach(config) {
         socket.on('error', function (err) {
             console.error('node-itach :: error :: ', err);
             socket.destroy();
-            self.emit('error', err);
+            for (var key in callbacks)
+                callbacks[key](err);
+            //self.emit('error', err);
         });
 
-        socket.on('timeout', function () {
+        socket.on('timeout', function (err) {
             console.error('node-itach :: error :: ', 'Timeout');
             socket.destroy();
-            self.emit('error', 'Timeout');
+            for (var key in callbacks)
+                callbacks[key](err);
+            //self.emit('error', err);
         });
 
         socket.on('data', function (data) {
@@ -190,9 +194,9 @@ function iTach(config) {
     this.disconnect = this.end = this.destroy = function (callback) {
         if (this.socket)
             this.socket.end();
+        debugger;
         messageQueue.clear();
-        callbacks.clear();
-
+        callbacks = {};
     }
     this.send = function (input, done) {
         if (!input) throw new Error('Missing input');
