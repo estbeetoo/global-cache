@@ -180,15 +180,14 @@ function iTach(config) {
             }
             socket.destroy();
 
-            isSending = false;
-            // go to the next message in the queue if any
-            if (messageQueue.length) {
-                debug && console.log('Delay before going to another item in a queue...');
-                //TODO: test with different equipment, do we really need DELAY_BETWEEN_COMMANDS?
-                setTimeout(function () {
-                    send_();
-                }, DELAY_BETWEEN_COMMANDS);
-            }
+            debug && console.log('Delay before going to another item in a queue...');
+            setTimeout(function(){
+            	isSending = false;
+            	// go to the next message in the queue if any
+            	if (messageQueue.length){
+            		send_();
+            	}
+            }, DELAY_BETWEEN_COMMANDS);
         });
     };
     this.disconnect = this.end = this.destroy = function (callback) {
