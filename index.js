@@ -67,12 +67,12 @@ function iTach(config) {
             callbacks[id] = done;
             return id;
         },
-        _resolveCallback = function (id, err, debug) {
+        _resolveCallback = function (id, err, debug, send) {
             if (callbacks[id]) {
                 debug && console.log('node-itach :: status:%s resolving callback with id %s', err ? 'error' : 'success', id);
                 callbacks[id](err || false);
                 delete callbacks[id];
-                clearSendTimeoutAndSendRightNow();
+                send && clearSendTimeoutAndSendRightNow();
             } else {
                 console.error('node-itach :: cannot find callback with id %s in callbacks hash', id);
             }
@@ -165,16 +165,16 @@ function iTach(config) {
                 if (status === 'busyIR') {
                     // This shoud not happen if this script is the only device connected to the iTach
                     // add rate limiter
-                    return _resolveCallback(id, 'Add Rate Limiter to the blaster', debug);
+                    return _resolveCallback(id, 'Add Rate Limiter to the blaster', debug, true);
                 } else if (status.match(/^ERR/)) {
                     var tmpArr = parts[1].split('IR');
                     var errCode = tmpArr.length >= 2 ? tmpArr[1] : tmpArr[0];
                     var err = ERRORCODES[errCode];
                     console.error('node-itach :: error :: ' + data + ': ' + err);
-                    return _resolveCallback(parts[2] || parts[1], err, debug);
-                } else if (parts[0] === 'setstate') {
-                    _resolveCallback(parts[1], null, debug);
-                } else if (parts[0] !== 'setstate') {
+                    return _resolveCallback(parts[2] || parts[1], err, debug, true);
+                } else if (parts[0] === 'setstate' || parts[0] === 'sendir') {
+                    _resolveCallback(parts[1], null, debug, (parts[0] === 'setstate'));
+                } else {
                     _resolveCallback(id, null, debug);
                 }
             }
