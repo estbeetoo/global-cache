@@ -34,7 +34,7 @@ var util = require('util'),
         '027': 'Settings are locked'
     };
 
-const DELAY_BETWEEN_COMMANDS = 5000;
+const DELAY_BETWEEN_COMMANDS = 500;
 
 function iTach(config) {
     config = _.extend({
