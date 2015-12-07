@@ -139,6 +139,7 @@ function iTach(config) {
             for (var key in callbacks)
                 callbacks[key](err);
             //self.emit('error', err);
+            sendNextMessage();
         });
 
         socket.on('timeout', function (err) {
@@ -147,6 +148,7 @@ function iTach(config) {
             for (var key in callbacks)
                 callbacks[key](err);
             //self.emit('error', err);
+            sendNextMessage();
         });
 
         socket.on('data', function (data) {
@@ -181,15 +183,18 @@ function iTach(config) {
             socket.destroy();
 
             debug && console.log('Delay before going to another item in a queue...');
-            setTimeout(function(){
-            	isSending = false;
-            	// go to the next message in the queue if any
-            	if (messageQueue.length){
-            		send_();
-            	}
-            }, DELAY_BETWEEN_COMMANDS);
+            setTimeout(sendNextMessage, DELAY_BETWEEN_COMMANDS);
         });
     };
+
+    function sendNextMessage(){
+    	isSending = false;
+    	// go to the next message in the queue if any
+    	if (messageQueue.length){
+    		send_();
+    	}
+    }
+
     this.disconnect = this.end = this.destroy = function (callback) {
         if (this.socket)
             this.socket.end();
