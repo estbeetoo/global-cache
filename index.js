@@ -101,19 +101,23 @@ function iTach(config) {
             clearTimeout(sendTimeout);
             sendTimeout = null;
         }
-        send_();
+        sendFromQueue_();
     }
 
-    function send_() {
-
+    function sendFromQueue_(){
         if (!messageQueue.length) {
             debug && console.log('Message queue is empty. returning...')
             return;
         }
         isSending = true;
         debug && console.log('Taking next message from the queue.')
-        var message = messageQueue.shift(),
-            id = message[0],
+        var message = messageQueue.shift();
+        send_(message);
+    }
+
+    function send_(message) {
+
+        var id = message[0],
             data = message[1];
 
         var socket = net.connect(config.port, config.host);
@@ -191,7 +195,7 @@ function iTach(config) {
     	isSending = false;
     	// go to the next message in the queue if any
     	if (messageQueue.length){
-    		send_();
+    		sendFromQueue_();
     	}
     }
 
@@ -201,8 +205,12 @@ function iTach(config) {
         messageQueue = [];
         callbacks = {};
     }
-    this.send = function (input, done) {
+    this.send = function (input, now, done) {
         if (!input) throw new Error('Missing input');
+        if (now && (messageQueue.length || isSending)){
+            debug && console.log("queue is not empty");
+            return;
+        }
 
         var data, ir;
 
@@ -245,11 +253,13 @@ function iTach(config) {
 
         data = parts.join(',');
 
-        // add to queue
-        messageQueue.push([id, data]);
-
-        if (!isSending) {
-            send_();
+        if (now && !isSending)
+            send_([id, data]);
+        else {
+            // add to queue
+            messageQueue.push([id, data]);
+            if (!isSending)
+                sendFromQueue_();
         }
     }
     iTach.super_.call(this, config);
