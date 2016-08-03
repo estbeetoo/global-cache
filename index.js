@@ -165,7 +165,7 @@ function iTach(config) {
                 if (!data)
                     continue;
                 var parts = data.split(','),
-                    status = parts[0],//TODO: why it was parts[1]?
+                    status = parts[0],
                     id = parts[2];
 
                 if (status === 'busyIR') {
@@ -173,7 +173,9 @@ function iTach(config) {
                     // add rate limiter
                     return _resolveCallback(id, 'Add Rate Limiter to the blaster', debug, true);
                 } else if (status.match(/^ERR/)) {
-                    var tmpArr = parts[1].split('IR');
+                    var tmpArr = (parts[1] || parts[0]).split('IR');
+		              if(tmpArr.length===1)
+			             tmpArr = tmpArr[0].split(' ');
                     var errCode = tmpArr.length >= 2 ? tmpArr[1] : tmpArr[0];
                     var err = ERRORCODES[errCode];
                     console.error('node-itach :: error :: ' + data + ': ' + err);
