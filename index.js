@@ -213,7 +213,7 @@ function iTach(config) {
       debug && console.log("queue is not empty");
       return;
     }
-    if(done === undefined && typeof  now === ' function') {
+    if(done === undefined && typeof  now === 'function') {
       done = now;
     }
 
